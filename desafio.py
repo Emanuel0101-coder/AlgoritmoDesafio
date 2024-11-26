@@ -38,7 +38,7 @@ import re
 
 #3 funções para auxiliar durante os pontos
 def contar_sequencias(s, padrao):               
-    #conta as sequencias de caracteres
+    #conta as sequencias de caracteres utilizando o re
     return len(re.findall(padrao, s))
 
 def contar_repetidos_consecutivos(s, condicao):
@@ -59,7 +59,7 @@ def pontuacao_senha(senha):
     maiuscula = sum(1 for c in senha if c.isupper())                #isupper, se tiver maiuscula, retorna verdadeiro
     minuscula = sum(1 for c in senha if c.islower())                #islower, se tiver minuscula, retorna verdadeiro
     numeros = sum(1 for c in senha if c.isdigit())                  #isdigit, se tiver numero, retorna verdadeiro
-    simbolos = sum(1 for c in senha if not c.isalnum())                 #isalnum, esse se não tiver numero ou letra, retorna verdadeiro
+    simbolos = sum(1 for c in senha if not c.isalnum())             #isalnum, esse se não tiver numero ou letra, retorna verdadeiro
 
     #Adicionando pontos :D
     pontos += num * 4
@@ -70,15 +70,15 @@ def pontuacao_senha(senha):
 
     # Numeros e simbolos no meio da senha
     meio = senha[1: -1]                 #Irá excluir o primeiro e último digito
-    num_meio = sum(1 for c in meio if c.isdigit() or not c.isalnum())           #ira percorre o meio da senha, e vai verificar se tem numero ou não tem letra ou numero
-    pontos += num_meio * 2                                                                                      #utilizando assim o alfanumérico para métrica
+    num_meio = sum(1 for c in meio if c.isdigit() or not c.isalnum())           #ira percorre o meio da senha, e vai verificar se tem numero ou não tem letra ou numero, utilizando assim o alfanumérico para métrica
+    pontos += num_meio * 2                                                          
     
     #Regras extras(adiciona 2 pontos para cada regra)
     regras = 0
     if num >= 8:                                                                 #1 regra, a senha deve ser maior ou igual a 8 digitos
         regras += 1
 
-    """2 regra(mais dificil), ela basicamente verifica se os valores maiusculos,
+    """2 regra, ela basicamente verifica se os valores maiusculos,
     minusculos, numeros e simbolos, representa pelo menos 3/4 do total da senha
     se pelo menos QUALQUER UMA das condições forem atendidas, ela conta + 1 na regra
     """
@@ -95,18 +95,22 @@ def pontuacao_senha(senha):
         pontos -= numeros
 
     #repetição
-    repetidos = sum(1 for c in senha if senha.count(c) > 1)     #vai contar quantas repeticoes tem na senha
+    """
+    vai contar quantas repeticoes tem na senha, se a variavel C for maior que 1, 
+    a condição é verdadeira, ou seja, se ouver mais de uma repeticao, como 111 ou aaa, ele subtrai
+    """
+    repetidos = sum(1 for c in senha if senha.count(c) > 1)     
     pontos -= repetidos
 
     #Casos de repetição
-    pontos -= contar_repetidos_consecutivos(senha, str.isupper) * 2                 #maiscula
-    pontos -= contar_repetidos_consecutivos(senha, str.islower) * 2                 #minuscula
-    pontos -= contar_repetidos_consecutivos(senha, str.isdigit) * 2                   #numeros
+    pontos -= contar_repetidos_consecutivos(senha, str.isupper) * 2                 #maiscula repetidas
+    pontos -= contar_repetidos_consecutivos(senha, str.islower) * 2                 #minuscula repetidas
+    pontos -= contar_repetidos_consecutivos(senha, str.isdigit) * 2                 #numeros  repetidos
 
     #Casos sequenciais
     pontos -= contar_sequencias(senha, r"[a-zA-Z]{4,}") * 3                         #ele ta indo de a-z tudo minusculo e de A-Z tudo maiusculo, se tiver 4 no minimo ele conta
     pontos -= contar_sequencias(senha, r"\d{4,}") * 3                               #aqui basicamente ta usando uma expressa chamada \d, que é basicamente numeros de 0 a 9, e se tiver uma sequencia de no minimo 4 numeros consecutivos, ele conta
-    pontos -= contar_sequencias(senha, r"[!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:'\",<>\./?\\|`~]{4,}") * 3        #nem cristo sabe o que é isso aqui,mas aparentemente ele ta analisando caracter especial por caraceter, enquanto vai andando pela senha, se achar 4, ele conta
+    pontos -= contar_sequencias(senha, r"[!@#\$%\^&\*\(\)_\+\-=\[\]\{\};:'\",<>\./?\\|`~]{4,}") * 3      #aqui ele conta sequencias de caracteres especiais seguidos em uma senha, se achar 4 caracteres, ele subtrai
 
     #FINALLY
 
